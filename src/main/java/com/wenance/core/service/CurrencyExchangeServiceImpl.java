@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wenance.core.models.CurrencyExchangeResponseDTO;
 import com.wenance.core.models.StaditicalExchange;
 import com.wenance.core.repository.CurrencyRepository;
+import com.wenance.core.utils.Utils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -44,26 +45,20 @@ public class CurrencyExchangeServiceImpl implements CurrencyExchangeService{
     @Override
     public StaditicalExchange getStadisticalExchange(LocalDateTime time1, LocalDateTime time2) {
 
-        Map<LocalDateTime, CurrencyExchangeResponseDTO> currencyExchangeTimeMap=
-                currencyRepository.getAllCurrency();
-
-        List<CurrencyExchangeResponseDTO> exchangeResponseDTOList =  currencyExchangeTimeMap
+        DoubleSummaryStatistics stats =    currencyRepository
+                .getAllCurrency()
                 .entrySet()
                 .stream()
                 .filter(e -> e.getKey().isAfter(time1.minusSeconds(1)) && e.getKey().isBefore(time2.plusSeconds(1)))
-                .map(Map.Entry::getValue)
-                .collect(Collectors.toList());
-
-        DoubleSummaryStatistics stats = exchangeResponseDTOList
-                .stream()
-                .mapToDouble(x -> Double.parseDouble(x.getPrice()))
+                .mapToDouble(x -> Double.parseDouble(x.getValue().getPrice()))
                 .summaryStatistics();
 
-        log.info("List de CurrencyExchanges, {}", exchangeResponseDTOList);
-        log.info("Estaditicas, {}", stats);
-
-        return new StaditicalExchange();
+        return StaditicalExchange.builder()
+                .timeDesde(time1)
+                .timeHasta(time2)
+                .promedio(stats.getAverage())
+                .diferenciaPorcentual(Utils
+                        .calcularDiferencialPorcentual(stats.getAverage(), stats.getMax()))
+                .build();
     }
-
-
 }

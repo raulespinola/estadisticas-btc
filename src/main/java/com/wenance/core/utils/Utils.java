@@ -18,4 +18,8 @@ public class Utils {
         dateTime = LocalDateTime.parse(date);
         return dateTime;
     }
+
+    public static double calcularDiferencialPorcentual(double promedio, double maxValue){
+        return (maxValue-promedio)*100/promedio;
+    }
 }

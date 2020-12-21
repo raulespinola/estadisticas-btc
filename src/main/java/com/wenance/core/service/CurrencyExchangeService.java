@@ -5,6 +5,7 @@ import com.wenance.core.models.StaditicalExchange;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.DoubleSummaryStatistics;
 import java.util.Map;
 
 public interface CurrencyExchangeService {
@@ -12,5 +13,5 @@ public interface CurrencyExchangeService {
 
     Map<LocalDateTime, CurrencyExchangeResponseDTO> getCurrencyMap();
 
-    StaditicalExchange getStadisticalExchange(LocalDateTime time1, LocalDateTime time2);
+    StaditicalExchange getStadisticalExchange(LocalDateTime timeDesde, LocalDateTime timeHasta);
 }

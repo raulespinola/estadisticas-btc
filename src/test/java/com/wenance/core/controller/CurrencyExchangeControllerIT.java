@@ -30,7 +30,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ActiveProfiles("test")
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @AutoConfigureMockMvc
-public class CurrencyExchangeControllerIT {
+ class CurrencyExchangeControllerIT {
     @Autowired
     private MockMvc mockMvc;
 
@@ -40,7 +40,6 @@ public class CurrencyExchangeControllerIT {
 
     @BeforeEach
     void setUp() {
-        currencyExchangeRepository.deleteAll();
         currencyExchangeMap = new TreeMap<>();
         Optional<LocalDateTime> fecha1 = Utils.convertStringToLocalDateTime("2020-12-21T19:27:25.000");
         if (fecha1.isPresent()) {

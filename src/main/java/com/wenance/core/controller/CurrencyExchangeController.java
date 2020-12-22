@@ -25,14 +25,14 @@ import java.util.Optional;
 @RestController
 @RequestMapping("v1/currencyExchange")
 @Slf4j
-@Api(value = "CurrencyExchange Controller", produces = "text/json", tags = {"CurrencyExchange Controlador"})
+@Api(value = "CurrencyExchange Controller", produces = "text/json")
 public class CurrencyExchangeController {
 
     @Autowired
     private CurrencyExchangeService currencyExchangeService;
 
     @GetMapping(value="/getExchangeByTime/timeStamp/{timeStamp}")
-    @ApiOperation(value = "Obtiene Exchange BTC/USD por TimeStamp en String", tags = { "CurrencyExchange Controller" })
+    @ApiOperation(value = "Obtiene Exchange BTC/USD por TimeStamp en String")
     public ResponseEntity<CurrencyExchange> getCurrencyExchangeByTimeStamp(@PathVariable String timeStamp) {
         Optional<LocalDateTime> timestampDate =  Utils.convertStringToLocalDateTime(timeStamp);
         return currencyExchangeService.getExchangeByTime(timestampDate.get())
@@ -41,14 +41,13 @@ public class CurrencyExchangeController {
     }
 
     @GetMapping(value="/getAllExchangeCurrency")
-    @ApiOperation(value = "Obtiene todos Exchange BTC/USD recolectados", tags = { "CurrencyExchange Controller" })
+    @ApiOperation(value = "Obtiene todos Exchange BTC/USD recolectados")
     public ResponseEntity<Map<LocalDateTime, CurrencyExchange>> getAllCurrencyExchanges(){
         return new ResponseEntity(currencyExchangeService.getAllCurrencyExchanges(), HttpStatus.OK);
     }
 
     @GetMapping(value="/getExchangeStaditical/timeFrom/{timeFrom}/timeTo/{timeTo}")
-    @ApiOperation(value = "Obtiene datos Estadisticos, Promedio y Porcentaje Dieferencia",
-            tags = { "CurrencyExchange Controller" })
+    @ApiOperation(value = "Obtiene datos Estadisticos, Promedio y Porcentaje Dieferencia")
     public ResponseEntity<StaditicalExchange> getExchangeStadistical(@PathVariable String timeFrom,
                                                       @PathVariable String timeTo){
         Optional<LocalDateTime> timestamp1 =  Utils.convertStringToLocalDateTime(timeFrom);

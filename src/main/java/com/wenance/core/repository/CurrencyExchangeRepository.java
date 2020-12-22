@@ -22,6 +22,13 @@ public class CurrencyExchangeRepository {
         this.currencyExchangeTimeMap = new TreeMap<>();
     }
 
+    public static void deleteAll() {
+    }
+
+    public Map<LocalDateTime, CurrencyExchange> saveAll() {
+        return currencyExchangeTimeMap;
+    }
+
     public String save(LocalDateTime date, CurrencyExchange currencyExchange){
         currencyExchangeTimeMap.put(date, currencyExchange);
         return "Currency Exchange Guardado";

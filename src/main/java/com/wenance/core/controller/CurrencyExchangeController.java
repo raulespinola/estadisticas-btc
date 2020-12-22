@@ -54,7 +54,7 @@ public class CurrencyExchangeController {
         Optional<LocalDateTime> timestamp1 =  Utils.convertStringToLocalDateTime(timeFrom);
         Optional<LocalDateTime> timestamp2 =  Utils.convertStringToLocalDateTime(timeTo);
         return currencyExchangeService
-                .getStadisticalExchange(timestamp1.get(), timestamp2.get())
+                .getStadisticalExchange(timestamp1, timestamp2)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }

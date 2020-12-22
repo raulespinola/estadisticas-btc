@@ -6,7 +6,7 @@ import com.wenance.core.config.AppProperties;
 import com.wenance.core.exceptions.ServiceException;
 import com.wenance.core.exceptions.ServerCommunicationException;
 import com.wenance.core.models.CurrencyExchange;
-import com.wenance.core.repository.CurrencyRepository;
+import com.wenance.core.repository.CurrencyExchangeRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,15 +22,15 @@ import java.util.Optional;
 @Service
 public class CollectServiceImpl implements CollectService{
 
-    private final CurrencyRepository currencyRepository;
+    private final CurrencyExchangeRepository currencyExchangeRepository;
     @Autowired
     private WebClient.Builder webClientBuilder;
 
     @Autowired
     private AppProperties appProperties;
 
-    public CollectServiceImpl(final CurrencyRepository currencyRepository) {
-        this.currencyRepository = currencyRepository;
+    public CollectServiceImpl(final CurrencyExchangeRepository currencyExchangeRepository) {
+        this.currencyExchangeRepository = currencyExchangeRepository;
     }
 
     @Scheduled(fixedRate = 10000)
@@ -38,16 +38,16 @@ public class CollectServiceImpl implements CollectService{
         final LocalDateTime timestamp = LocalDateTime.now();
         Optional<CurrencyExchange> currencyExchangeData = getExchangeData();
         if (currencyExchangeData.isPresent()) {
-            currencyRepository.save(timestamp, currencyExchangeData.get());
+            currencyExchangeRepository.save(timestamp, currencyExchangeData.get());
         } else {
             throw new ServiceException("Data could not collect");
         }
-        log.info("Event created!");
+        log.info("Collect Event Save");
     }
 
 
     private Optional<CurrencyExchange> getExchangeData(){
-        log.info("Get Currency");
+        log.info("Get Currency Exchange From Service");
         String response =  webClientBuilder.build()
                 .get()
                 .uri(appProperties.getExchangeUrl()+appProperties.getExchangeEndpoint())

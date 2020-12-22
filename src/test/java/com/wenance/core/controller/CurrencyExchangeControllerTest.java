@@ -42,11 +42,16 @@ class CurrencyExchangeControllerTest {
         currencyExchangeMap.put(fecha1.get(),
                 new CurrencyExchange("5000","USD","BTC"));
         }
-        currencyExchangeMap.put(Utils.convertStringToLocalDateTime("2020-12-21T19:27:30.000"),
+        Optional<LocalDateTime> fecha2=Utils.convertStringToLocalDateTime("2020-12-21T19:27:30.000");
+        if (fecha2.isPresent()){
+        currencyExchangeMap.put(fecha2.get(),
                 new CurrencyExchange("4500","USD","BTC"));
-        currencyExchangeMap.put(Utils.convertStringToLocalDateTime("2020-12-21T19:27:35.000"),
+        }
+        Optional<LocalDateTime> fecha3=Utils.convertStringToLocalDateTime("2020-12-21T19:27:35.000");
+        if (fecha3.isPresent()){
+        currencyExchangeMap.put(fecha3.get(),
                 new CurrencyExchange("6000","USD","BTC"));
-
+        }
     }
 
     @Test
@@ -61,10 +66,10 @@ class CurrencyExchangeControllerTest {
     @Test
     void get_currency_exchange_by_time_test() throws Exception {
         String timeStampString = "2020-12-21T19:27:25.000";
-        LocalDateTime timeStampID= Utils.convertStringToLocalDateTime(timeStampString);
+        Optional<LocalDateTime> timeStampID= Utils.convertStringToLocalDateTime(timeStampString);
         CurrencyExchange currencyExchange = new CurrencyExchange("6000",
                 "USD","BTC");
-        given(currencyExchangeService.getExchangeByTime(timeStampID))
+        given(currencyExchangeService.getExchangeByTime(timeStampID.get()))
                 .willReturn(Optional.of(currencyExchange));
 
         this.mockMvc.perform(get("/v1/currencyExchange/getExchangeByTime/timeStamp/{timeStamp}/", timeStampString))
@@ -75,18 +80,19 @@ class CurrencyExchangeControllerTest {
     @Test
     void get_stadistical_data_average_and_porcentual_difference_test() throws Exception {
 
-        LocalDateTime timeDesde= Utils.convertStringToLocalDateTime("2020-12-21T21:21:13.893");
-        LocalDateTime timeHasta=Utils.convertStringToLocalDateTime("2020-12-21T21:21:53.885");
+        Optional<LocalDateTime> timeDesde= Utils.convertStringToLocalDateTime("2020-12-21T21:21:13.893");
+        Optional<LocalDateTime> timeHasta=Utils.convertStringToLocalDateTime("2020-12-21T21:21:53.885");
         StaditicalExchange staditicalExchangeMock = StaditicalExchange.builder()
                 .diferenciaPorcentual(0)
                 .promedio(100)
-                .timeDesde(timeDesde)
-                .timeHasta(timeHasta)
+                .timeDesde(timeDesde.get())
+                .timeHasta(timeHasta.get())
                 .build();
         given(currencyExchangeService.getStadisticalExchange(timeDesde,timeHasta))
-                .willReturn(staditicalExchangeMock);
+                .willReturn(Optional.of(staditicalExchangeMock));
 
-        this.mockMvc.perform(get("/v1/currencyExchange/getExchangeStaditical/timeFrom/{timeDesde}/timeTo/{timeHasta}/", timeDesde, timeHasta))
+        this.mockMvc.perform(get("/v1/currencyExchange/getExchangeStaditical/timeFrom/{timeDesde}/timeTo/{timeHasta}/",
+                timeDesde.get(), timeHasta.get()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.promedio", is(staditicalExchangeMock.getPromedio())));
 

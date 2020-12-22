@@ -13,12 +13,12 @@ import java.util.*;
 @Setter
 @Slf4j
 @Repository
-public class CurrencyRepository {
+public class CurrencyExchangeRepository {
 
     private Map<LocalDateTime, CurrencyExchange> currencyExchangeTimeMap;
 
 
-    public CurrencyRepository() {
+    public CurrencyExchangeRepository() {
         this.currencyExchangeTimeMap = new TreeMap<>();
     }
 

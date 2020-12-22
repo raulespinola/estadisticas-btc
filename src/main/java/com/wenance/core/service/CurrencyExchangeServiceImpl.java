@@ -2,8 +2,9 @@ package com.wenance.core.service;
 
 import com.wenance.core.models.CurrencyExchange;
 import com.wenance.core.models.StaditicalExchange;
-import com.wenance.core.repository.CurrencyRepository;
+import com.wenance.core.repository.CurrencyExchangeRepository;
 import com.wenance.core.utils.Utils;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,46 +18,55 @@ import java.util.Optional;
 
 @Service
 @Slf4j
+@NoArgsConstructor
 public class CurrencyExchangeServiceImpl implements CurrencyExchangeService{
 
     @Autowired
-    private CurrencyRepository currencyRepository;
+    private CurrencyExchangeRepository currencyExchangeRepository;
     @Autowired
     private WebClient.Builder webClientBuilder;
 
+    public CurrencyExchangeServiceImpl(CurrencyExchangeRepository currencyExchangeRepository) {
+        this.currencyExchangeRepository = currencyExchangeRepository;
+    }
+
     public Optional<CurrencyExchange> getExchangeByTime(LocalDateTime timeStamp){
         log.info("Get Currency");
-        return currencyRepository.getExchangeByTime(timeStamp);
+        return currencyExchangeRepository.getExchangeByTime(timeStamp);
     }
 
     @Override
     public Map<LocalDateTime, CurrencyExchange> getAllCurrencyExchanges() {
-        return currencyRepository.getCurrencyExchangeTimeMap();
+        return currencyExchangeRepository.getCurrencyExchangeTimeMap();
     }
 
     @Override
-    public Optional<StaditicalExchange> getStadisticalExchange(LocalDateTime time1, LocalDateTime time2) {
+    public Optional<StaditicalExchange> getStadisticalExchange(Optional<LocalDateTime> time1, Optional<LocalDateTime> time2) {
 
         Optional<StaditicalExchange> result = Optional.empty();
-        Optional<Double> calc = Optional.empty();
-        DoubleSummaryStatistics stats =    currencyRepository
-                .getAllCurrency()
-                .entrySet()
-                .stream()
-                .filter(e -> e.getKey().isAfter(time1.minusSeconds(1)) && e.getKey().isBefore(time2.plusSeconds(1)))
-                .mapToDouble(x -> Double.parseDouble(x.getValue().getPrice()))
-                .summaryStatistics();
+        Optional<Double> calc;
+        DoubleSummaryStatistics stats;
+        if (time1.isPresent() && time2.isPresent()) {
+            stats = currencyExchangeRepository
+                    .getAllCurrency()
+                    .entrySet()
+                    .stream()
+                    .filter(e -> e.getKey().isAfter(time1.get().minusSeconds(1))
+                            && e.getKey().isBefore(time2.get().plusSeconds(1)))
+                    .mapToDouble(x -> Double.parseDouble(x.getValue().getPrice()))
+                    .summaryStatistics();
+            calc = Utils.calcularDiferencialPorcentual(stats.getAverage(), stats.getMax());
 
-        calc = Utils.calcularDiferencialPorcentual(stats.getAverage(), stats.getMax());
-
-        if (calc.isPresent())
-        result = Optional
-                .of(StaditicalExchange.builder()
-                .timeDesde(time1)
-                .timeHasta(time2)
-                .promedio(stats.getAverage())
-                .diferenciaPorcentual(calc.get())
-                .build());
+            if (calc.isPresent())
+                result = Optional
+                        .of(StaditicalExchange.builder()
+                                .timeDesde(time1.get())
+                                .timeHasta(time2.get())
+                                .promedio(stats.getAverage())
+                                .diferenciaPorcentual(calc.get())
+                                .build());
+            return result;
+        }
         return result;
     }
 }

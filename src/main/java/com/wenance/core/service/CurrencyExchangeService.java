@@ -12,5 +12,5 @@ public interface CurrencyExchangeService {
 
     Map<LocalDateTime, CurrencyExchange> getAllCurrencyExchanges();
 
-    Optional<StaditicalExchange> getStadisticalExchange(LocalDateTime timeDesde, LocalDateTime timeHasta);
+    Optional<StaditicalExchange> getStadisticalExchange(Optional<LocalDateTime> timeDesde, Optional<LocalDateTime> timeHasta);
 }

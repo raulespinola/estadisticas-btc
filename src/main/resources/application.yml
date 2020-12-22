@@ -1,0 +1,5 @@
+app:
+  name: currency-exchange
+  services:
+    exchange-url: https://cex.io/api
+    exchange-endpoint: /last_price/BTC/USD

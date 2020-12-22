@@ -17,12 +17,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.time.LocalDateTime;
 import java.util.*;
 
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.Matchers.hasSize;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.hamcrest.CoreMatchers.is;
-import static org.mockito.Mockito.doNothing;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -41,8 +37,11 @@ class CurrencyExchangeControllerTest {
     @BeforeEach
     void setUp() {
         currencyExchangeMap = new TreeMap<>();
-        currencyExchangeMap.put(Utils.convertStringToLocalDateTime("2020-12-21T19:27:25.000"),
+        Optional<LocalDateTime> fecha1=Utils.convertStringToLocalDateTime("2020-12-21T19:27:25.000");
+        if (fecha1.isPresent()){
+        currencyExchangeMap.put(fecha1.get(),
                 new CurrencyExchange("5000","USD","BTC"));
+        }
         currencyExchangeMap.put(Utils.convertStringToLocalDateTime("2020-12-21T19:27:30.000"),
                 new CurrencyExchange("4500","USD","BTC"));
         currencyExchangeMap.put(Utils.convertStringToLocalDateTime("2020-12-21T19:27:35.000"),

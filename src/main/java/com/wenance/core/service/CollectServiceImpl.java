@@ -2,23 +2,32 @@ package com.wenance.core.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.wenance.core.config.AppProperties;
+import com.wenance.core.exceptions.ServiceException;
+import com.wenance.core.exceptions.ServerCommunicationException;
 import com.wenance.core.models.CurrencyExchange;
 import com.wenance.core.repository.CurrencyRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Slf4j
 @Service
-public class CollectServiceImpl {
+public class CollectServiceImpl implements CollectService{
 
     private final CurrencyRepository currencyRepository;
     @Autowired
     private WebClient.Builder webClientBuilder;
+
+    @Autowired
+    private AppProperties appProperties;
 
     public CollectServiceImpl(final CurrencyRepository currencyRepository) {
         this.currencyRepository = currencyRepository;
@@ -27,28 +36,38 @@ public class CollectServiceImpl {
     @Scheduled(fixedRate = 10000)
     public void createEventCollect() {
         final LocalDateTime timestamp = LocalDateTime.now();
-        currencyRepository.save(timestamp, getExchangeData());
+        Optional<CurrencyExchange> currencyExchangeData = getExchangeData();
+        if (currencyExchangeData.isPresent()) {
+            currencyRepository.save(timestamp, currencyExchangeData.get());
+        } else {
+            throw new ServiceException("Data could not collect");
+        }
         log.info("Event created!");
     }
 
-    private CurrencyExchange getExchangeData(){
+
+    private Optional<CurrencyExchange> getExchangeData(){
         log.info("Get Currency");
         String response =  webClientBuilder.build()
                 .get()
-                .uri("https://cex.io/api/last_price/BTC/USD")
+                .uri(appProperties.getExchangeUrl()+appProperties.getExchangeEndpoint())
                 .retrieve()
+                .onStatus(HttpStatus.NOT_FOUND::equals,
+                        clientResponse -> clientResponse.bodyToMono(ServerCommunicationException.class)
+                                .flatMap(serverCommunicationException -> Mono.error(serverCommunicationException)))
+                .onStatus(HttpStatus::isError,
+                        clientResponse -> clientResponse.bodyToMono(ServiceException.class)
+                                .flatMap(serviceException -> Mono.error(serviceException)))
                 .bodyToMono(String.class)
                 .block();
 
-        CurrencyExchange currencyExchange =
-                new CurrencyExchange();
+        Optional<CurrencyExchange> currencyExchange = Optional.empty();
         ObjectMapper mapper = new ObjectMapper();
         try {
-            currencyExchange = mapper.readValue(response, CurrencyExchange.class);
+            currencyExchange = Optional.of(mapper.readValue(response, CurrencyExchange.class));
         } catch (JsonProcessingException e) {
-            log.error("Error Mapeo");
+            log.error("Error Mapeo {}", e.getMessage());
         }
         return currencyExchange;
     }
-
 }

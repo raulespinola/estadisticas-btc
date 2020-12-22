@@ -35,8 +35,10 @@ public class CurrencyExchangeServiceImpl implements CurrencyExchangeService{
     }
 
     @Override
-    public StaditicalExchange getStadisticalExchange(LocalDateTime time1, LocalDateTime time2) {
+    public Optional<StaditicalExchange> getStadisticalExchange(LocalDateTime time1, LocalDateTime time2) {
 
+        Optional<StaditicalExchange> result = Optional.empty();
+        Optional<Double> calc = Optional.empty();
         DoubleSummaryStatistics stats =    currencyRepository
                 .getAllCurrency()
                 .entrySet()
@@ -45,12 +47,16 @@ public class CurrencyExchangeServiceImpl implements CurrencyExchangeService{
                 .mapToDouble(x -> Double.parseDouble(x.getValue().getPrice()))
                 .summaryStatistics();
 
-        return StaditicalExchange.builder()
+        calc = Utils.calcularDiferencialPorcentual(stats.getAverage(), stats.getMax());
+
+        if (calc.isPresent())
+        result = Optional
+                .of(StaditicalExchange.builder()
                 .timeDesde(time1)
                 .timeHasta(time2)
                 .promedio(stats.getAverage())
-                .diferenciaPorcentual(Utils
-                        .calcularDiferencialPorcentual(stats.getAverage(), stats.getMax()))
-                .build();
+                .diferenciaPorcentual(calc.get())
+                .build());
+        return result;
     }
 }

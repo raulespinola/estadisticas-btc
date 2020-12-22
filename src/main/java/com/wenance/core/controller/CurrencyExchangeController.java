@@ -34,8 +34,8 @@ public class CurrencyExchangeController {
     @GetMapping(value="/getExchangeByTime/timeStamp/{timeStamp}")
     @ApiOperation(value = "Obtiene Exchange BTC/USD por TimeStamp en String", tags = { "CurrencyExchange Controller" })
     public ResponseEntity<CurrencyExchange> getCurrencyExchangeByTimeStamp(@PathVariable String timeStamp) {
-        LocalDateTime timestampDate =  Utils.convertStringToLocalDateTime(timeStamp);
-        return currencyExchangeService.getExchangeByTime(timestampDate)
+        Optional<LocalDateTime> timestampDate =  Utils.convertStringToLocalDateTime(timeStamp);
+        return currencyExchangeService.getExchangeByTime(timestampDate.get())
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
@@ -51,9 +51,11 @@ public class CurrencyExchangeController {
             tags = { "CurrencyExchange Controller" })
     public ResponseEntity<StaditicalExchange> getExchangeStadistical(@PathVariable String timeFrom,
                                                       @PathVariable String timeTo){
-        LocalDateTime timestamp1 =  Utils.convertStringToLocalDateTime(timeFrom);
-        LocalDateTime timestamp2 =  Utils.convertStringToLocalDateTime(timeTo);
-        return new ResponseEntity(currencyExchangeService
-                .getStadisticalExchange(timestamp1, timestamp2), HttpStatus.OK);
+        Optional<LocalDateTime> timestamp1 =  Utils.convertStringToLocalDateTime(timeFrom);
+        Optional<LocalDateTime> timestamp2 =  Utils.convertStringToLocalDateTime(timeTo);
+        return currencyExchangeService
+                .getStadisticalExchange(timestamp1.get(), timestamp2.get())
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 }

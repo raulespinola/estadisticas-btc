@@ -1,6 +1,7 @@
 package com.wenance.core.controller;
 
 import com.wenance.core.models.CurrencyExchange;
+import com.wenance.core.models.StaditicalExchange;
 import com.wenance.core.service.CurrencyExchangeService;
 import com.wenance.core.utils.Utils;
 import org.apache.tomcat.jni.Local;
@@ -50,7 +51,7 @@ class CurrencyExchangeControllerTest {
     }
 
     @Test
-    void get_all_currency_exchanges() throws Exception {
+    void get_all_currency_exchanges_test() throws Exception {
         given(currencyExchangeService.getAllCurrencyExchanges()).willReturn(this.currencyExchangeMap);
 
         this.mockMvc.perform(get("/v1/currencyExchange/getAllExchangeCurrency"))
@@ -59,7 +60,7 @@ class CurrencyExchangeControllerTest {
     }
 
     @Test
-    void get_currency_exchange_by_time() throws Exception {
+    void get_currency_exchange_by_time_test() throws Exception {
         String timeStampString = "2020-12-21T19:27:25.000";
         LocalDateTime timeStampID= Utils.convertStringToLocalDateTime(timeStampString);
         CurrencyExchange currencyExchange = new CurrencyExchange("6000",
@@ -67,12 +68,28 @@ class CurrencyExchangeControllerTest {
         given(currencyExchangeService.getExchangeByTime(timeStampID))
                 .willReturn(Optional.of(currencyExchange));
 
-        this.mockMvc.perform(get("/v1/currencyExchange/getExchangeByTime?timeStampString={timeStampString}", timeStampString))
+        this.mockMvc.perform(get("/v1/currencyExchange/getExchangeByTime/timeStamp/{timeStamp}/", timeStampString))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.price", is(currencyExchange.getPrice())));
+                .andExpect(jsonPath("$.lprice", is(currencyExchange.getPrice())));
     }
 
     @Test
-    void testGetAllCurrencyExchanges() {
+    void get_stadistical_data_average_and_porcentual_difference_test() throws Exception {
+
+        LocalDateTime timeDesde= Utils.convertStringToLocalDateTime("2020-12-21T21:21:13.893");
+        LocalDateTime timeHasta=Utils.convertStringToLocalDateTime("2020-12-21T21:21:53.885");
+        StaditicalExchange staditicalExchangeMock = StaditicalExchange.builder()
+                .diferenciaPorcentual(0)
+                .promedio(100)
+                .timeDesde(timeDesde)
+                .timeHasta(timeHasta)
+                .build();
+        given(currencyExchangeService.getStadisticalExchange(timeDesde,timeHasta))
+                .willReturn(staditicalExchangeMock);
+
+        this.mockMvc.perform(get("/v1/currencyExchange/getExchangeStaditical/timeFrom/{timeDesde}/timeTo/{timeHasta}/", timeDesde, timeHasta))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.promedio", is(staditicalExchangeMock.getPromedio())));
+
     }
 }

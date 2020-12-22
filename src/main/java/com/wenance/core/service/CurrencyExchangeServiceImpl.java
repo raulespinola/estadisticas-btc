@@ -1,26 +1,18 @@
 package com.wenance.core.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.wenance.core.models.CurrencyExchangeResponseDTO;
+import com.wenance.core.models.CurrencyExchange;
 import com.wenance.core.models.StaditicalExchange;
 import com.wenance.core.repository.CurrencyRepository;
 import com.wenance.core.utils.Utils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
 
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.DoubleSummaryStatistics;
-import java.util.IntSummaryStatistics;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 
 @Service
@@ -32,13 +24,13 @@ public class CurrencyExchangeServiceImpl implements CurrencyExchangeService{
     @Autowired
     private WebClient.Builder webClientBuilder;
 
-    public CurrencyExchangeResponseDTO getExchangeByTime(LocalDateTime timeStamp){
+    public Optional<CurrencyExchange> getExchangeByTime(LocalDateTime timeStamp){
         log.info("Get Currency");
         return currencyRepository.getExchangeByTime(timeStamp);
     }
 
     @Override
-    public Map<LocalDateTime, CurrencyExchangeResponseDTO> getCurrencyMap() {
+    public Map<LocalDateTime, CurrencyExchange> getAllCurrencyExchanges() {
         return currencyRepository.getCurrencyExchangeTimeMap();
     }
 

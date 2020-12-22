@@ -1,17 +1,16 @@
 package com.wenance.core.service;
 
-import com.wenance.core.models.CurrencyExchangeResponseDTO;
+import com.wenance.core.models.CurrencyExchange;
 import com.wenance.core.models.StaditicalExchange;
 
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.DoubleSummaryStatistics;
 import java.util.Map;
+import java.util.Optional;
 
 public interface CurrencyExchangeService {
-    CurrencyExchangeResponseDTO getExchangeByTime(LocalDateTime timeStamp);
+    Optional<CurrencyExchange> getExchangeByTime(LocalDateTime timeStamp);
 
-    Map<LocalDateTime, CurrencyExchangeResponseDTO> getCurrencyMap();
+    Map<LocalDateTime, CurrencyExchange> getAllCurrencyExchanges();
 
     StaditicalExchange getStadisticalExchange(LocalDateTime timeDesde, LocalDateTime timeHasta);
 }

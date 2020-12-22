@@ -16,13 +16,8 @@ import java.util.*;
 public class CurrencyExchangeRepository {
 
     private Map<LocalDateTime, CurrencyExchange> currencyExchangeTimeMap;
-
-
     public CurrencyExchangeRepository() {
         this.currencyExchangeTimeMap = new TreeMap<>();
-    }
-
-    public static void deleteAll() {
     }
 
     public Map<LocalDateTime, CurrencyExchange> saveAll() {

@@ -1,14 +1,11 @@
 package com.wenance.core.controller;
 
-import com.wenance.core.exceptions.ExceptionResponse;
 import com.wenance.core.models.CurrencyExchange;
 import com.wenance.core.models.StaditicalExchange;
 import com.wenance.core.service.CurrencyExchangeService;
 import com.wenance.core.utils.Utils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -35,15 +32,17 @@ public class CurrencyExchangeController {
     @ApiOperation(value = "Obtiene Exchange BTC/USD por TimeStamp en String")
     public ResponseEntity<CurrencyExchange> getCurrencyExchangeByTimeStamp(@PathVariable String timeStamp) {
         Optional<LocalDateTime> timestampDate =  Utils.convertStringToLocalDateTime(timeStamp);
+        if(timestampDate.isPresent()){
         return currencyExchangeService.getExchangeByTime(timestampDate.get())
                 .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+                .orElseGet(() -> ResponseEntity.notFound().build());}
+        else return ResponseEntity.notFound().build();
     }
 
     @GetMapping(value="/getAllExchangeCurrency")
     @ApiOperation(value = "Obtiene todos Exchange BTC/USD recolectados")
     public ResponseEntity<Map<LocalDateTime, CurrencyExchange>> getAllCurrencyExchanges(){
-        return new ResponseEntity(currencyExchangeService.getAllCurrencyExchanges(), HttpStatus.OK);
+        return new ResponseEntity<>(currencyExchangeService.getAllCurrencyExchanges(), HttpStatus.OK);
     }
 
     @GetMapping(value="/getExchangeStaditical/timeFrom/{timeFrom}/timeTo/{timeTo}")
